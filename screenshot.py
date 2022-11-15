@@ -37,7 +37,7 @@ def enum_cb(hwnd, results):
   winlist.append((hwnd, win32gui.GetWindowText(hwnd)))
 
 def get_sr_name_from_image(path):
-  image = cv2.imread(TEMP_IMAGE_PATH)
+  image = cv2.imread(path)
 
   lower_blue = np.array([151, 197, 1])
   upper_blue = np.array([183, 255, 10])
@@ -57,7 +57,11 @@ def take_screenshot():
   return ImageGrab.grab(bbox)
 
 def crop_to_focus_area(image):
-  return img.crop((384, 231, 829, 718))
+  return image.crop((384, 231, 829, 718))
+
+def crop_to_sr_name_column(image):
+  width, height = image.size
+  return image.crop((904, 231, width, height))
 
 def get_path(char_name, sr_name):
   return f"{BASE_PATH}{char_name}/{sr_name}.png"
@@ -76,7 +80,8 @@ if len(sys.argv) >= 2:
   for hwnd, title in winlist:
     if 'grandchase' in title.lower():
       img = take_screenshot()
-      img.save(TEMP_IMAGE_PATH)
+      sr_name_column = crop_to_sr_name_column(img)
+      save_image(sr_name_column, TEMP_IMAGE_PATH)
       sr_name = get_sr_name_from_image(TEMP_IMAGE_PATH)
       image_path = get_path(char_name, sr_name)
       cropped_img = crop_to_focus_area(img)
